@@ -242,11 +242,11 @@ class MenuTheme:
             dpg.add_theme_style(dpg.mvStyleVar_PopupRounding, 5)
             dpg.add_theme_style(dpg.mvStyleVar_TabRounding, 5)
 
-            dpg.add_theme_color(dpg.mvThemeCol_TitleBg, (107, 38, 130, 255))
-            dpg.add_theme_color(dpg.mvThemeCol_TitleBgActive, (107, 38, 130, 255))
-            dpg.add_theme_color(dpg.mvThemeCol_TitleBgCollapsed, (107, 38, 130, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_TitleBg, (38, 130, 50, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_TitleBgActive, (38, 130, 50, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_TitleBgCollapsed, (38, 130, 50, 255))
 
-            dpg.add_theme_color(dpg.mvThemeCol_Border, (107, 38, 130, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_Border, (38, 130, 50, 255))
             dpg.add_theme_color(dpg.mvThemeCol_BorderShadow, (0, 0, 0, 0))
 
             dpg.add_theme_color(dpg.mvThemeCol_WindowBg, (15, 15, 15, 255))
@@ -254,40 +254,40 @@ class MenuTheme:
             dpg.add_theme_color(dpg.mvThemeCol_Text, (255, 255, 255, 255))
             dpg.add_theme_color(dpg.mvThemeCol_TextDisabled, (112, 112, 112, 255))
 
-            dpg.add_theme_color(dpg.mvThemeCol_Button, (107, 38, 130, 255))
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, (67, 0, 90, 255))
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, (147, 78, 170, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_Button, (38, 130, 50, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, (0, 90, 10, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, (78, 170, 90, 255))
 
-            dpg.add_theme_color(dpg.mvThemeCol_CheckMark, (107, 38, 130, 255))
-            dpg.add_theme_color(dpg.mvThemeCol_SliderGrab, (107, 38, 130, 255))
-            dpg.add_theme_color(dpg.mvThemeCol_SliderGrabActive, (107, 38, 130, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_CheckMark, (38, 130, 50, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_SliderGrab, (38, 130, 50, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_SliderGrabActive, (38, 130, 50, 255))
 
-            dpg.add_theme_color(dpg.mvThemeCol_Header, (107, 38, 130, 255))
-            dpg.add_theme_color(dpg.mvThemeCol_HeaderHovered, (67, 0, 90, 255))
-            dpg.add_theme_color(dpg.mvThemeCol_HeaderActive, (147, 78, 170, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_Header, (38, 130, 50, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_HeaderHovered, (0, 90, 10, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_HeaderActive, (78, 170, 90, 255))
 
-            dpg.add_theme_color(dpg.mvThemeCol_FrameBgHovered, (67, 0, 90, 255))
-            dpg.add_theme_color(dpg.mvThemeCol_FrameBgActive, (147, 78, 170, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_FrameBgHovered, (0, 90, 10, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_FrameBgActive, (78, 170, 90, 255))
             dpg.add_theme_color(dpg.mvThemeCol_FrameBg, (28, 28, 28, 255))
             dpg.add_theme_color(dpg.mvThemeCol_PopupBg, (28, 28, 28, 255))
 
-            dpg.add_theme_color(dpg.mvThemeCol_Tab, (107, 38, 130, 255))
-            dpg.add_theme_color(dpg.mvThemeCol_TabHovered, (67, 0, 90, 255))
-            dpg.add_theme_color(dpg.mvThemeCol_TabActive, (67, 0, 90, 255))
-            dpg.add_theme_color(dpg.mvThemeCol_TabUnfocused, (107, 38, 130, 255))
-            dpg.add_theme_color(dpg.mvThemeCol_TabUnfocusedActive, (147, 78, 170, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_Tab, (38, 130, 50, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_TabHovered, (0, 90, 10, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_TabActive, (0, 90, 10, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_TabUnfocused, (38, 130, 50, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_TabUnfocusedActive, (78, 170, 90, 255))
 
-            dpg.add_theme_color(dpg.mvThemeCol_ResizeGrip, (107, 38, 130, 255))
-            dpg.add_theme_color(dpg.mvThemeCol_ResizeGripHovered, (67, 0, 90, 255))
-            dpg.add_theme_color(dpg.mvThemeCol_ResizeGripActive, (147, 78, 170, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_ResizeGrip, (38, 130, 50, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_ResizeGripHovered, (0, 90, 10, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_ResizeGripActive, (78, 170, 90, 255))
 
-            dpg.add_theme_color(dpg.mvThemeCol_SeparatorHovered, (67, 0, 90, 255))
-            dpg.add_theme_color(dpg.mvThemeCol_SeparatorActive, (147, 78, 170, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_SeparatorHovered, (0, 90, 10, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_SeparatorActive, (78, 170, 90, 255))
 
-            dpg.add_theme_color(dpg.mvThemeCol_PlotLinesHovered, (67, 0, 90, 255))
-            dpg.add_theme_color(dpg.mvThemeCol_PlotHistogramHovered, (67, 0, 90, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_PlotLinesHovered, (0, 90, 10, 255))
+            dpg.add_theme_color(dpg.mvThemeCol_PlotHistogramHovered, (0, 90, 10, 255))
 
-            dpg.add_theme_color(dpg.mvPlotCol_Crosshairs, (107, 38, 130, 255))
+            dpg.add_theme_color(dpg.mvPlotCol_Crosshairs, (38, 130, 50, 255))
 
 title_bar_drag = False
            
@@ -403,7 +403,7 @@ class Gui():
                         self.streamproofcheckbox = dpg.add_checkbox(label="Streamproof GUI", default_value=False, callback=self.togglestreamproof, tag="streamproofcheckbox")
                         self.closecommandbutton = dpg.add_button(label="Hide Command Prompt", callback=self.closecommand, tag="closecommandbutton")
                         dpg.add_text("GUI Theme Color:")
-                        self.guithemecolorpicker = dpg.add_color_picker(width=100, height=100, no_alpha=True, no_inputs=True, no_side_preview=True, no_small_preview=True, default_value=(107, 38, 130, 255), callback=self.updatethemecolor, tag="guithemecolorpicker")
+                        self.guithemecolorpicker = dpg.add_color_picker(width=100, height=100, no_alpha=True, no_inputs=True, no_side_preview=True, no_small_preview=True, default_value=(38, 130, 50, 255), callback=self.updatethemecolor, tag="guithemecolorpicker")
             
         def cal_dow(sender,data):
             global titlebardrag
@@ -1737,8 +1737,8 @@ class Visuals(QMainWindow):
 
                 painter.setRenderHint(QPainter.Antialiasing, False)
 
-                painter.fillRect(px, py, view_w, header_h, QColor(20, 12, 28))
-                painter.setPen(QColor(210, 130, 255))
+                painter.fillRect(px, py, view_w, header_h, QColor(12, 28, 15))
+                painter.setPen(QColor(130, 255, 150))
                 painter.drawText(px + 8, py + 15, "CLARITY AI")
                 painter.setPen(QColor(255, 255, 255))
                 painter.drawText(px + view_w // 2 - 28, py + 15, f"{self.nn_targets} TARGET")
@@ -1758,7 +1758,7 @@ class Visuals(QMainWindow):
                     ry1 = py + header_h + int(by1 * scale_y)
                     rx2 = px + int(bx2 * scale_x)
                     ry2 = py + header_h + int(by2 * scale_y)
-                    painter.setPen(QPen(QColor(235, 120, 200), 1))
+                    painter.setPen(QPen(QColor(120, 235, 140), 1))
                     painter.drawRect(rx1, ry1, rx2 - rx1, ry2 - ry1)
                     conf = d.get('conf', 0)
                     painter.drawText(rx1, max(ry1 - 2, py + header_h + 10), f"{int(conf * 100)}%")
@@ -1773,7 +1773,7 @@ class Visuals(QMainWindow):
                     painter.drawEllipse(ax - 3, ay - 3, 6, 6)
                     painter.setBrush(Qt.NoBrush)
 
-                painter.setPen(QPen(QColor(150, 60, 190), 2))
+                painter.setPen(QPen(QColor(60, 190, 80), 2))
                 painter.drawRect(px, py, view_w, view_h + header_h)
             except Exception:
                 pass
