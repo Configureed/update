@@ -1469,18 +1469,10 @@ def mainloop():
                 aim_x = smoothed_aim_point[0]
                 aim_y = smoothed_aim_point[1]
 
-                # Smoothed velocity for lead; EMA on velocity itself to stop spikes.
-                if prev_aim_point is not None and prev_aim_time is not None:
-                    dt = now - prev_aim_time
-                    if 0 < dt < 0.08:
-                        vx = (aim_x - prev_aim_point[0]) / dt
-                        vy = (aim_y - prev_aim_point[1]) / dt
-                        if abs(vx) < 4000 and abs(vy) < 4000:
-                            aim_vel_ema[0] += 0.25 * (vx - aim_vel_ema[0])
-                            aim_vel_ema[1] += 0.25 * (vy - aim_vel_ema[1])
-                            lead = 0.02
-                            aim_x += aim_vel_ema[0] * lead
-                            aim_y += aim_vel_ema[1] * lead
+                # Lead/prediction removed: at high target velocity it shot the aim
+                # past the target by ~lead*vel pixels, so right before a fast target
+                # leaves the FOV the mouse was pulled far outside — looked like a yank.
+                # The EMA smoothing above already gives low-lag tracking without it.
                 prev_aim_point = (smoothed_aim_point[0], smoothed_aim_point[1])
                 prev_aim_time = now
 
@@ -1513,6 +1505,16 @@ def mainloop():
                                 gain = max(gain, 0.03)
                             move_x = xdist * gain + mouse_residual[0]
                             move_y = ydist * gain + mouse_residual[1]
+
+                            # Overshoot clamp: cap at 90% of the remaining distance along
+                            # each axis so a fast snap never flies past the target.
+                            if abs(move_x) > abs(xdist) * 0.9:
+                                move_x = xdist * 0.9
+                                mouse_residual[0] = 0.0
+                            if abs(move_y) > abs(ydist) * 0.9:
+                                move_y = ydist * 0.9
+                                mouse_residual[1] = 0.0
+
                             int_x = int(move_x)
                             int_y = int(move_y)
                             # Keep the sub-pixel remainder so small moves don't get rounded away.
