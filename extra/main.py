@@ -1217,6 +1217,7 @@ def mainloop():
     mouse_residual = [0.0, 0.0]
     target_lost_at = None
     TARGET_GRACE_SEC = 0.25
+    frames_since_lock = 0
 
     def iswithinfov(fovcenter, fovradius, box):
         x1, y1, x2, y2 = box
@@ -1454,6 +1455,7 @@ def mainloop():
                 # far away = faster response (less lag on flicks).
                 if smoothed_aim_point is None:
                     smoothed_aim_point = [raw_point[0], raw_point[1]]
+                    frames_since_lock = 0
                 else:
                     jump = math.hypot(raw_point[0] - smoothed_aim_point[0],
                                       raw_point[1] - smoothed_aim_point[1])
@@ -1461,10 +1463,14 @@ def mainloop():
                         # Big jump (target switch / re-detect) — snap, don't drag jitter forward.
                         smoothed_aim_point = [raw_point[0], raw_point[1]]
                         aim_vel_ema = [0.0, 0.0]
+                        frames_since_lock = 0
+                        mouse_residual[0] = 0.0
+                        mouse_residual[1] = 0.0
                     else:
                         alpha = 0.35 if jump > 10 else 0.18
                         smoothed_aim_point[0] += alpha * (raw_point[0] - smoothed_aim_point[0])
                         smoothed_aim_point[1] += alpha * (raw_point[1] - smoothed_aim_point[1])
+                        frames_since_lock += 1
 
                 aim_x = smoothed_aim_point[0]
                 aim_y = smoothed_aim_point[1]
@@ -1498,21 +1504,41 @@ def mainloop():
                             mouse_residual[0] = 0.0
                             mouse_residual[1] = 0.0
                         else:
-                            # Progressive gain: dampen gain when close to the target so we
-                            # don't overshoot and get pulled back the next frame.
-                            if dist_px < 12:
-                                gain *= dist_px / 12.0
+                            # Snap ramp: when a new lock just happened, start the pursuit
+                            # slow and ramp up over the next few frames. Prevents the
+                            # harsh initial-snap overshoot.
+                            # frame 0:  0.22, frame 1: 0.37, frame 2: 0.52, ..., frame 6+: 1.0
+                            ramp = min(1.0, 0.22 + frames_since_lock * 0.15)
+                            gain *= ramp
+
+                            # Smoother progressive gain: start damping already at 30px so
+                            # we approach the target instead of charging in and bouncing.
+                            if dist_px < 30:
+                                gain *= dist_px / 30.0
                                 gain = max(gain, 0.03)
+
                             move_x = xdist * gain + mouse_residual[0]
                             move_y = ydist * gain + mouse_residual[1]
 
-                            # Overshoot clamp: cap at 90% of the remaining distance along
+                            # Overshoot clamp: cap at 85% of the remaining distance along
                             # each axis so a fast snap never flies past the target.
-                            if abs(move_x) > abs(xdist) * 0.9:
-                                move_x = xdist * 0.9
+                            if abs(move_x) > abs(xdist) * 0.85:
+                                move_x = xdist * 0.85
                                 mouse_residual[0] = 0.0
-                            if abs(move_y) > abs(ydist) * 0.9:
-                                move_y = ydist * 0.9
+                            if abs(move_y) > abs(ydist) * 0.85:
+                                move_y = ydist * 0.85
+                                mouse_residual[1] = 0.0
+
+                            # Absolute per-frame speed cap. Scales with distance so flicks
+                            # across the FOV still feel fast, but the first few snap
+                            # frames can't teleport.
+                            max_step = max(20.0, dist_px * 0.5)
+                            step = math.hypot(move_x, move_y)
+                            if step > max_step and step > 0:
+                                scale = max_step / step
+                                move_x *= scale
+                                move_y *= scale
+                                mouse_residual[0] = 0.0
                                 mouse_residual[1] = 0.0
 
                             int_x = int(move_x)
@@ -1532,6 +1558,7 @@ def mainloop():
                 smoothed_aim_point = None
                 aim_vel_ema = [0.0, 0.0]
                 mouse_residual = [0.0, 0.0]
+                frames_since_lock = 0
 
                 if dpg.get_value("triggerbotcheckbox") and triggerbot_enabled:
                     on_crosshair = x1 <= screenshotcentre[0] <= x2 and y1 <= screenshotcentre[1] <= y2
@@ -1553,6 +1580,7 @@ def mainloop():
                 mouse_residual = [0.0, 0.0]
                 prev_target_center = None
                 target_lost_at = None
+                frames_since_lock = 0
 
             if using_gamepad() and not aiming_now:
                 try:
