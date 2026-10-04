@@ -1342,35 +1342,57 @@ def mainloop():
             model_centre = model_input_size / 2
             aimbothotkey_pre = getkeycode("aimbothotkeycombobox")
             aimbothotkey_held_pre = win32api.GetKeyState(aimbothotkey_pre) in (-127, -128) if aimbothotkey_pre else False
-            for det in detections:
-                x1, y1, x2, y2, confidence, classid = det
-                if confidence < confthreshold:
-                    continue
-                if dpg.get_value("fortnitebuildfiltercheckbox"):
-                    bw = x2 - x1
-                    bh = y2 - y1
-                    if bh <= 0 or (bw / bh) > 0.9:
+
+            # Hard sticky-lock: while the aim key is held, keep the current target even if a
+            # new player enters the FOV. Only release when no detection stays close to the
+            # locked target (i.e. the locked player died / left the frame).
+            sticky_radius = model_input_size * 0.30
+            sticky_target = None
+            sticky_bestdist = float('inf')
+            if aimbothotkey_held_pre and prev_target_center is not None:
+                for det in detections:
+                    x1, y1, x2, y2, confidence, classid = det
+                    if confidence < confthreshold:
                         continue
-                centrex = (x1 + x2) / 2
-                centrey = (y1 + y2) / 2
-                distance = math.hypot(centrex - model_centre, centrey - model_centre)
-                # Sticky lock: while holding the aim key and a target was locked last frame,
-                # prefer the detection closest to that target so we don't flicker between players.
-                if aimbothotkey_held_pre and prev_target_center is not None:
-                    stick = math.hypot(centrex - prev_target_center[0], centrey - prev_target_center[1])
-                    if stick < (model_input_size * 0.35):
-                        distance = stick * 0.5
-                if dpg.get_value("ignorefortniteplayercheckbox"):
-                    if ads() and x1 >= MAX_FOV / 4 and distance < targetdist:
-                        targetdist = distance
-                        target = det
-                    elif x1 >= MAX_FOV / 2 and distance < targetdist:
-                        targetdist = distance
-                        target = det
-                else:
-                    if distance < targetdist:
-                        targetdist = distance
-                        target = det
+                    if dpg.get_value("fortnitebuildfiltercheckbox"):
+                        bw = x2 - x1
+                        bh = y2 - y1
+                        if bh <= 0 or (bw / bh) > 0.9:
+                            continue
+                    cx = (x1 + x2) / 2
+                    cy = (y1 + y2) / 2
+                    stick = math.hypot(cx - prev_target_center[0], cy - prev_target_center[1])
+                    if stick < sticky_radius and stick < sticky_bestdist:
+                        sticky_bestdist = stick
+                        sticky_target = det
+
+            if sticky_target is not None:
+                target = sticky_target
+                targetdist = sticky_bestdist
+            else:
+                for det in detections:
+                    x1, y1, x2, y2, confidence, classid = det
+                    if confidence < confthreshold:
+                        continue
+                    if dpg.get_value("fortnitebuildfiltercheckbox"):
+                        bw = x2 - x1
+                        bh = y2 - y1
+                        if bh <= 0 or (bw / bh) > 0.9:
+                            continue
+                    centrex = (x1 + x2) / 2
+                    centrey = (y1 + y2) / 2
+                    distance = math.hypot(centrex - model_centre, centrey - model_centre)
+                    if dpg.get_value("ignorefortniteplayercheckbox"):
+                        if ads() and x1 >= MAX_FOV / 4 and distance < targetdist:
+                            targetdist = distance
+                            target = det
+                        elif x1 >= MAX_FOV / 2 and distance < targetdist:
+                            targetdist = distance
+                            target = det
+                    else:
+                        if distance < targetdist:
+                            targetdist = distance
+                            target = det
 
             aimbothotkey = getkeycode("aimbothotkeycombobox")
             aimbothotkey_held = win32api.GetKeyState(aimbothotkey) in (-127, -128) if aimbothotkey else False
@@ -1460,6 +1482,11 @@ def mainloop():
                             mouse_residual[0] = 0.0
                             mouse_residual[1] = 0.0
                         else:
+                            # Progressive gain: dampen gain when close to the target so we
+                            # don't overshoot and get pulled back the next frame.
+                            if dist_px < 12:
+                                gain *= dist_px / 12.0
+                                gain = max(gain, 0.03)
                             move_x = xdist * gain + mouse_residual[0]
                             move_y = ydist * gain + mouse_residual[1]
                             int_x = int(move_x)
