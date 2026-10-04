@@ -1212,6 +1212,9 @@ def mainloop():
     prev_target_center = None
     prev_aim_point = None
     prev_aim_time = None
+    smoothed_aim_point = None
+    aim_vel_ema = [0.0, 0.0]
+    mouse_residual = [0.0, 0.0]
 
     def iswithinfov(fovcenter, fovradius, box):
         x1, y1, x2, y2 = box
@@ -1399,20 +1402,44 @@ def mainloop():
 
                 now = time.time()
                 raw_point = (target_x, target_y)
+
+                # EMA smoothing on the raw target point to kill NN jitter.
+                # Alpha scales with distance: close-in = heavier smoothing (less jitter),
+                # far away = faster response (less lag on flicks).
+                if smoothed_aim_point is None:
+                    smoothed_aim_point = [raw_point[0], raw_point[1]]
+                else:
+                    jump = math.hypot(raw_point[0] - smoothed_aim_point[0],
+                                      raw_point[1] - smoothed_aim_point[1])
+                    if jump > 60:
+                        # Big jump (target switch / re-detect) — snap, don't drag jitter forward.
+                        smoothed_aim_point = [raw_point[0], raw_point[1]]
+                        aim_vel_ema = [0.0, 0.0]
+                    else:
+                        alpha = 0.35 if jump > 10 else 0.18
+                        smoothed_aim_point[0] += alpha * (raw_point[0] - smoothed_aim_point[0])
+                        smoothed_aim_point[1] += alpha * (raw_point[1] - smoothed_aim_point[1])
+
+                aim_x = smoothed_aim_point[0]
+                aim_y = smoothed_aim_point[1]
+
+                # Smoothed velocity for lead; EMA on velocity itself to stop spikes.
                 if prev_aim_point is not None and prev_aim_time is not None:
                     dt = now - prev_aim_time
                     if 0 < dt < 0.08:
-                        vx = (raw_point[0] - prev_aim_point[0]) / dt
-                        vy = (raw_point[1] - prev_aim_point[1]) / dt
+                        vx = (aim_x - prev_aim_point[0]) / dt
+                        vy = (aim_y - prev_aim_point[1]) / dt
                         if abs(vx) < 4000 and abs(vy) < 4000:
-                            lead = 0.045
-                            target_x += vx * lead
-                            target_y += vy * lead
-                prev_aim_point = raw_point
+                            aim_vel_ema[0] += 0.25 * (vx - aim_vel_ema[0])
+                            aim_vel_ema[1] += 0.25 * (vy - aim_vel_ema[1])
+                            lead = 0.02
+                            aim_x += aim_vel_ema[0] * lead
+                            aim_y += aim_vel_ema[1] * lead
+                prev_aim_point = (smoothed_aim_point[0], smoothed_aim_point[1])
                 prev_aim_time = now
 
-                xdist = target_x - screenshotcentre[0]
-                ydist = target_y - screenshotcentre[1]
+                xdist = aim_x - screenshotcentre[0]
+                ydist = aim_y - screenshotcentre[1]
 
                 if dpg.get_value("aimbotcheckbox") and aimbothotkey_held:
                     if ads():
@@ -1426,12 +1453,30 @@ def mainloop():
                         smoothing = max(1, dpg.get_value("aimsmoothingslider"))
                         gain = (strength / 100.0) * (10.0 / smoothing)
                         gain = max(0.02, min(gain, 1.0))
-                        mousemove(xdist * gain, ydist * gain)
+
+                        # Deadzone: once we're on the target, stop micro-corrections.
+                        dist_px = math.hypot(xdist, ydist)
+                        if dist_px < 1.5:
+                            mouse_residual[0] = 0.0
+                            mouse_residual[1] = 0.0
+                        else:
+                            move_x = xdist * gain + mouse_residual[0]
+                            move_y = ydist * gain + mouse_residual[1]
+                            int_x = int(move_x)
+                            int_y = int(move_y)
+                            # Keep the sub-pixel remainder so small moves don't get rounded away.
+                            mouse_residual[0] = move_x - int_x
+                            mouse_residual[1] = move_y - int_y
+                            if int_x != 0 or int_y != 0:
+                                mousemove(int_x, int_y)
                         aiming_now = True
             else:
                 prev_target_center = None
                 prev_aim_point = None
                 prev_aim_time = None
+                smoothed_aim_point = None
+                aim_vel_ema = [0.0, 0.0]
+                mouse_residual = [0.0, 0.0]
 
                 if dpg.get_value("triggerbotcheckbox") and triggerbot_enabled:
                     on_crosshair = x1 <= screenshotcentre[0] <= x2 and y1 <= screenshotcentre[1] <= y2
@@ -1448,6 +1493,9 @@ def mainloop():
             if not aimbothotkey_held:
                 prev_aim_point = None
                 prev_aim_time = None
+                smoothed_aim_point = None
+                aim_vel_ema = [0.0, 0.0]
+                mouse_residual = [0.0, 0.0]
 
             if using_gamepad() and not aiming_now:
                 try:
