@@ -1,0 +1,75 @@
+{
+    "aimbot": {
+        "enabled": true,
+        "regularstrength": 70,
+        "adsstrength": 85,
+        "aimsmoothing": 15,
+        "aimbone": "Neck",
+        "customoffset": 3,
+        "regularfov": 90,
+        "adsfov": 75,
+        "hotkey": "X2Mouse",
+        "neuralnetworkview": false
+    },
+    "triggerbot": {
+        "enabled": false,
+        "mode": "Full Auto",
+        "hotkey": "X2Mouse"
+    },
+    "antirecoil": {
+        "enabled": false,
+        "strength": 3,
+        "hotkey": "LeftMouse"
+    },
+    "fovcircle": {
+        "enabled": true,
+        "outlines": true,
+        "color": [
+            107.0,
+            38.0,
+            130.0,
+            255.0
+        ]
+    },
+    "crosshair": {
+        "enabled": false,
+        "size": 7,
+        "color": [
+            0.0,
+            0.0,
+            0.0,
+            255.0
+        ]
+    },
+    "targetboxes": {
+        "enabled": false,
+        "outlines": false,
+        "type": "Corner Box",
+        "color": [
+            107.0,
+            38.0,
+            130.0,
+            255.0
+        ]
+    },
+    "targettracers": {
+        "enabled": false,
+        "outlines": false,
+        "from": "Screen Centre",
+        "to": "Aim Bone",
+        "color": [
+            255.0,
+            255.0,
+            255.0,
+            255.0
+        ]
+    },
+    "ai": {
+        "ignorefortniteplayer": true,
+        "buildfilter": false,
+        "confidence": 25,
+        "iou": 45
+    },
+    "mouseinput": "GamePadEmu",
+    "streamproof": false
+}

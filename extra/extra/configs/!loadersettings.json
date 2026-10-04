@@ -1,0 +1,6 @@
+{
+    "targetfps": 144,
+    "arduino": false,
+    "arduinocom": "No ports found",
+    "makcu": false
+}
