@@ -1215,6 +1215,8 @@ def mainloop():
     smoothed_aim_point = None
     aim_vel_ema = [0.0, 0.0]
     mouse_residual = [0.0, 0.0]
+    target_lost_at = None
+    TARGET_GRACE_SEC = 0.25
 
     def iswithinfov(fovcenter, fovradius, box):
         x1, y1, x2, y2 = box
@@ -1366,10 +1368,32 @@ def mainloop():
                         sticky_bestdist = stick
                         sticky_target = det
 
+            now_sel = time.time()
+            in_grace = (
+                aimbothotkey_held_pre
+                and prev_target_center is not None
+                and sticky_target is None
+                and (target_lost_at is None or (now_sel - target_lost_at) < TARGET_GRACE_SEC)
+            )
+
             if sticky_target is not None:
                 target = sticky_target
                 targetdist = sticky_bestdist
+                target_lost_at = None
+            elif in_grace:
+                # Locked target disappeared this frame (recoil shake, briefly out of
+                # frame, motion blur). Hold the lock state and do NOT snap to another
+                # player / false positive — give the real target a grace window to
+                # re-appear. No movement during the grace.
+                if target_lost_at is None:
+                    target_lost_at = now_sel
+                target = -1
             else:
+                # Either no previous lock, or the grace expired — target is really gone.
+                # Fall back to normal closest-to-center pick.
+                if target_lost_at is not None:
+                    target_lost_at = None
+                    prev_target_center = None
                 for det in detections:
                     x1, y1, x2, y2, confidence, classid = det
                     if confidence < confthreshold:
@@ -1498,7 +1522,9 @@ def mainloop():
                                 mousemove(int_x, int_y)
                         aiming_now = True
             else:
-                prev_target_center = None
+                # No target this frame. prev_target_center is left to the selection logic
+                # above so the grace window can keep the lock alive. Freeze velocity /
+                # residual so we don't push mouse on re-acquire.
                 prev_aim_point = None
                 prev_aim_time = None
                 smoothed_aim_point = None
@@ -1523,6 +1549,8 @@ def mainloop():
                 smoothed_aim_point = None
                 aim_vel_ema = [0.0, 0.0]
                 mouse_residual = [0.0, 0.0]
+                prev_target_center = None
+                target_lost_at = None
 
             if using_gamepad() and not aiming_now:
                 try:
